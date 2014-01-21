@@ -37,16 +37,18 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             testF.close()
         except :
             self.request.sendall("HTTP/1.1 404 Not Found\n")
-        if "deep/index.html" in fileName:
-            self.displayIndex("www/deep/index.html")       
-        elif "deep.css" in fileName:       
+        if "etc/group" in fileName:
+            self.request.sendall("HTTP/1.1 404 Not Found\n")        
+        elif "deep/index.html" in fileName:
+            self.displayIndex("www/deep/index.html") 
+        else:
+            if "index.html" in fileName:
+                self.displayIndex("www/index.html")
+            if "base.css" in fileName:
+                self.displayCss("www/base.css")        
+        if "deep.css" in fileName: 
             self.displayCss("www/deep/deep.css")        
-        elif "etc/group" in fileName:
-            self.request.sendall("HTTP/1.1 404 Not Found\n")
-        elif "index.html" in fileName:
-            self.displayIndex("www/index.html")
-        elif "base.css" in fileName:
-            self.displayCss("www/base.css")
+
         
                           
     def displayIndex(self,indexType):
