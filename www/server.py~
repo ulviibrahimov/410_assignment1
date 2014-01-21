@@ -1,0 +1,59 @@
+import SocketServer
+import webbrowser
+import urllib2
+import os
+#
+# run: python freetests.py
+
+# try: curl -v -X GET http://127.0.0.1:8080/
+
+class MyWebServer(SocketServer.BaseRequestHandler):
+    
+    def handle(self):
+        #print "here"
+        self.data = self.request.recv(1024).strip()
+        print(self.data)
+        if self.data != "":
+            userData=self.data.split()
+            fileName=self.handlePath(userData[1])
+        if(fileName==""):
+            fileName="index.html"
+        try:
+            testF=open(fileName,"r")
+            testF.close()
+        except:
+            self.request.sendall("HTTP/1.1 404 Not Found\n")
+        if "index.html" in fileName:
+            self.displayIndex()
+        elif "base.css" in fileName:
+            self.displayCss()
+                          
+    def displayIndex(self):
+        header="HTTP/1.1 200 OK\nContent-type: text/html\r\n\r\n"
+        f = open("index.html", 'r')
+        dataToSend=header
+        for line in f:
+            dataToSend=dataToSend+line
+        f.close()
+        self.request.sendall(dataToSend)
+    def displayCss(self):
+        header="HTTP/1.1 200 OK\nContent-type: text/css\r\n\r\n"
+        f = open("base.css", 'r')
+        dataToSend=header
+        for line in f:
+            dataToSend=dataToSend+line
+        f.close()
+        self.request.sendall(dataToSend)
+
+    def handlePath(self, userPath):
+        if(userPath[0]=="/"):
+            newUserPath=userPath[1:len(userPath)]
+        if "deep" in newUserPath and "index.html" not in newUserPath:
+            newUserPath=""
+        return newUserPath
+if __name__ == "__main__":
+    HOST, PORT = "localhost", 8080
+
+    SocketServer.TCPServer.allow_reuse_address = True
+    server = SocketServer.TCPServer((HOST, PORT), MyWebServer)
+    server.serve_forever()
